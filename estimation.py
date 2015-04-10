@@ -2,6 +2,13 @@ from tornado.ioloop import IOLoop
 from tornado.web import RequestHandler, Application, url
 from tornado.websocket import WebSocketHandler
 
+import os
+
+
+settings = {
+    'debug': os.getenv('DEBUG', None) == 'TRUE',
+    'template_path': 'templates'
+}
 
 connections = []
 estimations = []
@@ -44,12 +51,12 @@ def make_app():
     return Application([
         url(r'^/$', AppHandler),
         url(r'^/websocket$', Estimation)
-    ], debug=True)
+    ], **settings)
 
 
 def main():
     app = make_app()
-    app.listen(8888)
+    app.listen(os.getenv('PORT', 8888))
     IOLoop.current().start()
 
 

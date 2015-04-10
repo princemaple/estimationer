@@ -16,7 +16,7 @@
 
 <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/3.6.0/lodash.min.js"></script>
 <script>
-  var ws = new WebSocket('ws://localhost:8888/websocket')
+  var ws = new WebSocket('ws://' + location.host + '/websocket');
 
   var $ = document.querySelector.bind(document),
       $$ = document.querySelectorAll.bind(document);

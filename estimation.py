@@ -12,7 +12,7 @@ class AppHandler(RequestHandler):
         self.render('index.html')
 
 
-class EchoWebSocket(WebSocketHandler):
+class Estimation(WebSocketHandler):
     def open(self):
         if not connections:
             self.write_message('ADMIN')
@@ -43,7 +43,7 @@ class EchoWebSocket(WebSocketHandler):
 def make_app():
     return Application([
         url(r'^/$', AppHandler),
-        url(r'^/websocket$', EchoWebSocket)
+        url(r'^/websocket$', Estimation)
     ], debug=True)
 
 

@@ -1,0 +1,65 @@
+<style>
+  .hide {
+    display: none;
+  }
+</style>
+
+<h1>Now estimating: <span id="issue-id">-</span> <small id="average"></small></h1>
+
+<form class="estimator hide">
+  Your estimation: <input type="text" id="estimation" name="estimation">
+</form>
+
+<form class="admin hide">
+  New Issue: <input type="text" id="new-issue" name="new-issue">
+</form>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/3.6.0/lodash.min.js"></script>
+<script>
+  var ws = new WebSocket('ws://localhost:8888/websocket')
+
+  var $ = document.querySelector.bind(document),
+      $$ = document.querySelectorAll.bind(document);
+
+  var $estimator = $('.estimator'),
+      $estimation = $('#estimation'),
+      $admin = $('.admin'),
+      $newIssue = $('#new-issue');
+
+  $estimator.onsubmit = function(e) {
+    e.preventDefault();
+
+    ws.send('EST:' + $estimation.value.trim());
+    $estimation.value = '';
+    $estimator.classList.add('hide');
+  };
+
+  $admin.onsubmit = function(e) {
+    e.preventDefault();
+
+    ws.send('NEW:' + $newIssue.value.trim());
+    $newIssue.value = '';
+  };
+
+  ws.onmessage = function(message) {
+    var data = message.data;
+
+    if (_.startsWith(data, 'NEW:')) {
+      $('#issue-id').textContent = data.replace(/NEW:/, '');
+      $estimator.classList.remove('hide');
+    }
+
+    if (_.startsWith(data, 'AEST:')) {
+      data = data.replace(/AEST:/, '').split(':');
+
+      var averageEST = data[0],
+          estimators = data[1];
+
+      $('#average').textContent = 'Average ' + averageEST + ' by ' +  estimators + ' estimator(s)';
+    }
+
+    if (data == 'ADMIN') {
+      $admin.classList.remove('hide');
+    }
+  };
+</script>

@@ -1,5 +1,5 @@
 from tornado.ioloop import IOLoop
-from tornado.web import RequestHandler, Application, url, asynchronous
+from tornado.web import RequestHandler, Application, url
 from tornado.websocket import WebSocketHandler
 
 
@@ -8,7 +8,6 @@ estimations = []
 
 
 class AppHandler(RequestHandler):
-    @asynchronous
     def get(self):
         self.render('index.html')
 

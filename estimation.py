@@ -1,5 +1,5 @@
 from tornado.ioloop import IOLoop
-from tornado.web import RequestHandler, Application, url
+from tornado.web import RequestHandler, Application, StaticFileHandler, url
 from tornado.websocket import WebSocketHandler
 
 import os
@@ -7,7 +7,8 @@ import os
 
 settings = {
     'debug': os.getenv('DEBUG', None) == 'TRUE',
-    'template_path': 'templates'
+    'template_path': 'templates',
+    'static_path': 'statics'
 }
 
 connections = []
@@ -50,7 +51,8 @@ class Estimation(WebSocketHandler):
 def make_app():
     return Application([
         url(r'^/$', AppHandler),
-        url(r'^/websocket$', Estimation)
+        url(r'^/websocket$', Estimation),
+        url(r'^/static/(.+)$', StaticFileHandler)
     ], **settings)
 
 

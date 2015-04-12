@@ -1,3 +1,5 @@
+from __future__ import division
+
 from tornado.ioloop import IOLoop
 from tornado.web import RequestHandler, Application, StaticFileHandler, url
 from tornado.websocket import WebSocketHandler
@@ -34,7 +36,7 @@ class Estimation(WebSocketHandler):
         if message.startswith('EST:'):
             estimations.append(int(message[4:]))
             estimators = len(estimations)
-            average = sum(estimations) / float(estimators)
+            average = sum(estimations) / estimators
             for conn in connections:
                 conn.write_message('AEST:{}:{}'.format(average, estimators))
 

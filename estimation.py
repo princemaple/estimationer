@@ -24,10 +24,15 @@ def debug_messaging(f):
     if not DEBUG: return f
 
     def on_message(self, message):
-        print(message)
+        print("User#{}-{}:{}".format(
+            connections.index(self),
+            getattr(self, 'name', '()'),
+            message
+        ))
         f(self, message)
 
     return on_message
+
 
 class AppHandler(RequestHandler):
     def get(self):

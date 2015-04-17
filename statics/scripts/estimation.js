@@ -1,46 +1,82 @@
-var ws = new WebSocket('ws://' + location.host + '/websocket');
-
 var $ = document.querySelector.bind(document),
     $$ = document.querySelectorAll.bind(document);
 
-var $estimator = $('.estimator'),
-    $estimation = $('#estimation'),
-    $admin = $('.admin'),
-    $newIssue = $('#new-issue');
+function register() {
+  var $register = $('.register');
 
-$estimator.onsubmit = function(e) {
-  e.preventDefault();
+  $register.onsubmit = function(e) {
+    e.preventDefault();
 
-  ws.send('EST:' + $estimation.value.trim());
-  $estimation.value = '';
-  $estimator.classList.add('hide');
-};
+    $register.classList.add('hide');
+    setup($('#name').value.trim());
+  };
+}
 
-$admin.onsubmit = function(e) {
-  e.preventDefault();
+function setup(name) {
+  var ws = new WebSocket('ws://' + location.host + '/websocket');
 
-  ws.send('NEW:' + $newIssue.value.trim());
-  $newIssue.value = '';
-};
+  var $estimator = $('.estimator'),
+      $estimation = $('#estimation'),
+      $admin = $('.admin'),
+      $newIssue = $('#new-issue'),
+      $history = $('.history');
 
-ws.onmessage = function(message) {
-  var data = message.data;
+  $('.status').classList.remove('hide');
 
-  if (_.startsWith(data, 'NEW:')) {
-    $('#issue-id').textContent = data.replace(/NEW:/, '');
-    $estimator.classList.remove('hide');
-  }
+  ws.onopen = function() {
+    ws.send('IAM:' + name);
+  };
 
-  if (_.startsWith(data, 'AEST:')) {
-    data = data.replace(/AEST:/, '').split(':');
+  $estimator.onsubmit = function(e) {
+    e.preventDefault();
 
-    var averageEST = data[0],
-        estimators = data[1];
+    ws.send('EST:' + $estimation.value.trim());
+    $estimation.value = '';
+    $estimator.classList.add('hide');
+  };
 
-    $('#average').textContent = 'Average ' + averageEST + ' by ' +  estimators + ' estimator(s)';
-  }
+  $admin.onsubmit = function(e) {
+    e.preventDefault();
 
-  if (data == 'ADMIN') {
-    $admin.classList.remove('hide');
-  }
-};
+    ws.send('NEW:' + $newIssue.value.trim());
+    $newIssue.value = '';
+  };
+
+  ws.onmessage = function(message) {
+    var data = message.data;
+
+    if (_.startsWith(data, 'NEW:')) {
+      $('#issue-id').textContent = data.replace(/NEW:/, '');
+      $estimator.classList.remove('hide');
+
+      $history.innerHTML = '';
+    }
+
+    if (_.startsWith(data, 'EST:')) {
+      data = data.replace(/^EST:/, '').split(':');
+
+      var estimator = data[0],
+          estimation = data[1];
+
+      var record = document.createElement('p');
+      record.textContent = estimator + ' estimated ' + estimation;
+
+      $history.appendChild(record);
+    }
+
+    if (_.startsWith(data, 'AEST:')) {
+      data = data.replace(/^AEST:/, '').split(':');
+
+      var averageEST = data[0],
+          estimators = data[1];
+
+      $('#average').textContent = 'Average ' + averageEST + ' by ' +  estimators + ' estimator(s)';
+    }
+
+    if (data == 'ADMIN') {
+      $admin.classList.remove('hide');
+    }
+  };
+}
+
+register();

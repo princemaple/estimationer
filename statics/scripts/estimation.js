@@ -19,7 +19,8 @@ function setup(name) {
       $estimation = $('#estimation'),
       $admin = $('.admin'),
       $newIssue = $('#new-issue'),
-      $history = $('.history');
+      $history = $('.history'),
+      $quickEstimates = $$('.estimate');
 
   $('.status').classList.remove('hide');
 
@@ -27,12 +28,29 @@ function setup(name) {
     ws.send('IAM:' + name);
   };
 
+  function focusElem(elem) {
+    elem.focus();
+    elem.select();
+  }
+
+  [].forEach.call($quickEstimates, function($estimate) {
+    $estimate.onclick = function(e) {
+      $estimation.value = e.target.dataset.est;
+      focusElem($estimation);
+    };
+  });
+
   $estimator.onsubmit = function(e) {
     e.preventDefault();
 
-    ws.send('EST:' + $estimation.value.trim());
+    var estimation = $estimation.value.trim();
+
+    if (estimation == '') { return; }
+
+    ws.send('EST:' + estimation);
     $estimation.value = '';
     $estimator.classList.add('hide');
+    focusElem($newIssue);
   };
 
   $admin.onsubmit = function(e) {
@@ -40,6 +58,7 @@ function setup(name) {
 
     ws.send('NEW:' + $newIssue.value.trim());
     $newIssue.value = '';
+    focusElem($estimation);
   };
 
   ws.onmessage = function(message) {
@@ -50,6 +69,7 @@ function setup(name) {
       $estimator.classList.remove('hide');
 
       $history.innerHTML = '';
+      focusElem($estimation);
     }
 
     if (_.startsWith(data, 'EST:')) {
@@ -75,6 +95,7 @@ function setup(name) {
 
     if (data == 'ADMIN') {
       $admin.classList.remove('hide');
+      focusElem($newIssue);
     }
   };
 }

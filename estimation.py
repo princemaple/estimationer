@@ -21,7 +21,7 @@ estimations = []
 
 
 def debug_messaging(f):
-    if DEBUG: return f
+    if not DEBUG: return f
 
     def on_message(self, message):
         print(message)
@@ -59,6 +59,8 @@ class Estimation(WebSocketHandler):
                 conn.write_message('AEST:{}:{}'.format(average, estimators))
 
         elif message.startswith('NEW:'):
+            if self is not connections[0]: return
+
             estimations = []
             for conn in connections:
                 conn.write_message(message)

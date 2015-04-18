@@ -86,8 +86,8 @@ function setup(name) {
       $history.appendChild(record);
     }
 
-    if (_.startsWith(data, 'AEST:')) {
-      data = data.replace(/^AEST:/, '').split(':');
+    if (_.startsWith(data, 'AVG:')) {
+      data = data.replace(/^AVG:/, '').split(':');
 
       var averageEST = data[0],
           estimators = data[1];

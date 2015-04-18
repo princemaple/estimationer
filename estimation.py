@@ -61,7 +61,7 @@ class Estimation(WebSocketHandler):
             average = sum(estimations) / estimators
             for conn in connections:
                 conn.write_message('EST:{}:{}'.format(self.name, estimation))
-                conn.write_message('AEST:{}:{}'.format(average, estimators))
+                conn.write_message('AVG:{:.1}:{}'.format(average, estimators))
 
         elif message.startswith('NEW:'):
             if self is not connections[0]: return
@@ -69,7 +69,7 @@ class Estimation(WebSocketHandler):
             estimations = []
             for conn in connections:
                 conn.write_message(message)
-                conn.write_message('AEST:{}:{}'.format(0, 0))
+                conn.write_message('AVG:{}:{}'.format(0, 0))
 
         elif message == 'PING':
             self.write_message('PONG');

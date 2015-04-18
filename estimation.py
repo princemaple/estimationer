@@ -61,7 +61,7 @@ class Estimation(WebSocketHandler):
             average = sum(estimations) / estimators
             for conn in connections:
                 conn.write_message('EST:{}:{}'.format(self.name, estimation))
-                conn.write_message('AVG:{:.1}:{}'.format(average, estimators))
+                conn.write_message('AVG:{:.1f}:{}'.format(average, estimators))
 
         elif message.startswith('NEW:'):
             if self is not connections[0]: return

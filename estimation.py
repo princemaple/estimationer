@@ -71,6 +71,9 @@ class Estimation(WebSocketHandler):
                 conn.write_message(message)
                 conn.write_message('AEST:{}:{}'.format(0, 0))
 
+        elif message == 'PING':
+            self.write_message('PONG');
+
     def on_close(self):
         connections.remove(self)
 

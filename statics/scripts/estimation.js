@@ -15,6 +15,8 @@ function register() {
 function setup(name) {
   var ws = new WebSocket('ws://' + location.host + '/websocket');
 
+  heartBeat(ws);
+
   var $estimator = $('.estimator'),
       $estimation = $('#estimation'),
       $admin = $('.admin'),
@@ -98,6 +100,12 @@ function setup(name) {
       focusElem($newIssue);
     }
   };
+}
+
+function heartBeat(ws) {
+  return setInterval(function() {
+    ws.send('PING');
+  }, 5000);
 }
 
 register();

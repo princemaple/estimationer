@@ -1,0 +1,10 @@
+branch-defaults:
+  master:
+    environment: estimationer
+global:
+  application_name: Estimationer
+  default_ec2_keyname: aws-eb
+  default_platform: Docker 1.5.0
+  default_region: ap-southeast-2
+  profile: eb-cli
+  sc: git

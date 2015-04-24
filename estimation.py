@@ -1,5 +1,3 @@
-from __future__ import division
-
 from tornado.ioloop import IOLoop
 from tornado.web import RequestHandler, Application, StaticFileHandler, url
 from tornado.websocket import WebSocketHandler

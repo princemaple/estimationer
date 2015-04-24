@@ -4,47 +4,68 @@
   <meta charset="UTF-8">
   <title>Estimationer</title>
   <style>
+    html, body {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      margin: 0;
+    }
     .hide {
       display: none;
     }
     .abs-center {
-      position: fixed;
+      position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
     }
     .estimate {
+      display: block;
+      float: left;
       width: 160px;
       height: 160px;
       cursor: pointer;
+      padding: 3px;
+    }
+    .estimate:nth-child(4n) {
+      clear: left;
+    }
+    .users {
+      position: fixed;
+      top: 0;
+      left: 0;
     }
   </style>
 </head>
 <body>
-  <form class="register abs-center">
-    <label for="name">WHO ARE YOU?</label>
-    <input type="text" id="name" name="name" autofocus>
-  </form>
+  <div class="wrapper abs-center">
+    <form class="register">
+      <label for="name">WHO ARE YOU?</label>
+      <input type="text" id="name" name="name" autofocus>
+    </form>
 
-  <h1 class="status hide">Now estimating: <span id="issue-id">-</span> <small id="average"></small></h1>
+    <h1 class="status hide">Now estimating: <span id="issue-id">-</span></h1>
+    <h4 id="average"></h4>
 
-  <form class="estimator hide">
-    Your estimation: <input type="text" id="estimation" name="estimation">
-    <p>
-      <img class="estimate" src="http://scrumology.com/wp-content/uploads/2015/01/tshirt-XS.png" data-est="1" alt="XS">
-      <img class="estimate" src="http://scrumology.com/wp-content/uploads/2015/01/tshirt-S.png" data-est="2" alt="S">
-      <img class="estimate" src="http://scrumology.com/wp-content/uploads/2015/01/tshirt-M.png" data-est="4" alt="M">
-      <img class="estimate" src="http://scrumology.com/wp-content/uploads/2015/01/tshirt-L.png" data-est="8" alt="L">
-      <img class="estimate" src="http://scrumology.com/wp-content/uploads/2015/01/tshirt-XL.png" data-est="16" alt="XL">
-      <img class="estimate" src="http://scrumology.com/wp-content/uploads/2015/01/tshirt-question.png" data-est="32" alt="?">
-    </p>
-  </form>
+    <form class="estimator hide">
+      Your estimation: <input type="text" id="estimation" name="estimation">
+      <div>
+        <img class="estimate" src="http://scrumology.com/wp-content/uploads/2015/01/tshirt-XS.png" data-est="1" alt="XS">
+        <img class="estimate" src="http://scrumology.com/wp-content/uploads/2015/01/tshirt-S.png" data-est="2" alt="S">
+        <img class="estimate" src="http://scrumology.com/wp-content/uploads/2015/01/tshirt-M.png" data-est="4" alt="M">
+        <img class="estimate" src="http://scrumology.com/wp-content/uploads/2015/01/tshirt-L.png" data-est="8" alt="L">
+        <img class="estimate" src="http://scrumology.com/wp-content/uploads/2015/01/tshirt-XL.png" data-est="16" alt="XL">
+        <img class="estimate" src="http://scrumology.com/wp-content/uploads/2015/01/tshirt-question.png" data-est="32" alt="?">
+      </div>
+    </form>
 
-  <form class="admin hide">
-    New Issue: <input type="text" id="new-issue" name="new-issue">
-  </form>
-
-  <div class="history"></div>
+    <form class="admin hide">
+      New Issue: <input type="text" id="new-issue" name="new-issue">
+    </form>
+    <div class="history"></div>
+   </div>
+  <div class="users"></div>
 
   <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/3.6.0/lodash.min.js"></script>
   <script src="/static/scripts/estimation.js"></script>

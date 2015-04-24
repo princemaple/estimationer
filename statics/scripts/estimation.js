@@ -63,42 +63,60 @@ function setup(name) {
     focusElem($estimation);
   };
 
+  function newIssue(issue) {
+    $('#issue-id').textContent = issue;
+    $estimator.classList.remove('hide');
+
+    $history.innerHTML = '';
+    focusElem($estimation);
+  }
+
+  function estimate(user, score) {
+    var record = document.createElement('p');
+    record.textContent = user + ' estimated ' + score;
+
+    $history.appendChild(record);
+  }
+
+  function average(averageScore, userCount) {
+    $('#average').textContent = 'Average ' + averageScore + ' by ' +  userCount + ' estimator(s)';
+  }
+
+  function userEnter(name) {
+    var user = document.createElement('p');
+    user.textContent = name + ' joined';
+
+    $('.users').appendChild(user);
+  }
+
+  function userLeave(name) {
+    var user = document.createElement('p');
+    user.textContent = name + ' disconnected';
+
+    $('.users').appendChild(user);
+  }
+
+  function admin() {
+    $admin.classList.remove('hide');
+    focusElem($newIssue);
+  }
+
+  dispatcher = {
+    NEW: newIssue,
+    EST: estimate,
+    AVG: average,
+    YO: userEnter,
+    BYE: userLeave,
+    ADMIN: admin,
+    PONG: _.noop
+  };
+
   ws.onmessage = function(message) {
-    var data = message.data;
+    console.log(message.data);
+    var command = message.data.split(':');
+    var args = command.splice(1);
 
-    if (_.startsWith(data, 'NEW:')) {
-      $('#issue-id').textContent = data.replace(/NEW:/, '');
-      $estimator.classList.remove('hide');
-
-      $history.innerHTML = '';
-      focusElem($estimation);
-    }
-
-    if (_.startsWith(data, 'EST:')) {
-      data = data.replace(/^EST:/, '').split(':');
-
-      var estimator = data[0],
-          estimation = data[1];
-
-      var record = document.createElement('p');
-      record.textContent = estimator + ' estimated ' + estimation;
-
-      $history.appendChild(record);
-    }
-
-    if (_.startsWith(data, 'AVG:')) {
-      data = data.replace(/^AVG:/, '').split(':');
-
-      var averageEST = data[0],
-          estimators = data[1];
-
-      $('#average').textContent = 'Average ' + averageEST + ' by ' +  estimators + ' estimator(s)';
-    }
-
-    if (data == 'ADMIN') {
-      $admin.classList.remove('hide');
-      focusElem($newIssue);
-    }
+    dispatcher[command].apply(null, args);
   };
 }
 

@@ -7,15 +7,11 @@ import os
 
 DEBUG = os.getenv('DEBUG', None) == 'TRUE'
 
-
 settings = {
     'debug': DEBUG,
     'template_path': 'templates',
     'static_path': 'statics'
 }
-
-connections = []
-estimations = []
 
 
 def debug_messaging(f):
@@ -23,13 +19,67 @@ def debug_messaging(f):
 
     def on_message(self, message):
         print("User#{}-{}:{}".format(
-            connections.index(self),
+            Estimationer.connections.index(self),
             getattr(self, 'name', '()'),
             message
         ))
         f(self, message)
 
     return on_message
+
+
+class Dispatcher:
+    ROUTES = {
+        'EST': 'estimate',
+        'IAM': 'new_user',
+        'PING': 'ping',
+        'NEW': 'new_issue'
+    }
+
+    @classmethod
+    def dispatch(cls, conn, message):
+        command, *args = message.split(':')
+
+        if command not in cls.ROUTES: return
+
+        getattr(Estimationer, cls.ROUTES[command])(conn, *args)
+
+
+class Estimationer:
+    connections = []
+    estimations = []
+
+    @classmethod
+    def new_user(cls, conn, who):
+        conn.name = who
+
+        if conn is not cls.connections[0]:
+            cls.connections[0].write_message('YO:{}'.format(who))
+
+    @staticmethod
+    def ping(conn):
+        conn.write_message('PONG')
+
+    @classmethod
+    def estimate(cls, conn, score):
+        estimation = int(score)
+        cls.estimations.append(estimation)
+
+        estimators = len(cls.estimations)
+        average = sum(cls.estimations) / estimators
+
+        for c in cls.connections:
+            c.write_message('EST:{}:{}'.format(conn.name, estimation))
+            c.write_message('AVG:{:.1f}:{}'.format(average, estimators))
+
+    @classmethod
+    def new_issue(cls, conn, issue):
+        if conn is not cls.connections[0]: return
+
+        cls.estimations = []
+        for c in cls.connections:
+            c.write_message('NEW:{}'.format(issue))
+            c.write_message('AVG:{}:{}'.format(0, 0))
 
 
 class AppHandler(RequestHandler):
@@ -39,41 +89,19 @@ class AppHandler(RequestHandler):
 
 class Estimation(WebSocketHandler):
     def open(self):
-        if not connections:
+        if not Estimationer.connections:
             self.write_message('ADMIN')
 
-        connections.append(self)
-        self.write_message('hello')
+        Estimationer.connections.append(self)
 
     @debug_messaging
     def on_message(self, message):
-        global estimations
-
-        if message.startswith('IAM:'):
-            self.name = message[4:]
-
-        elif message.startswith('EST:'):
-            estimation = int(message[4:])
-            estimations.append(estimation)
-            estimators = len(estimations)
-            average = sum(estimations) / estimators
-            for conn in connections:
-                conn.write_message('EST:{}:{}'.format(self.name, estimation))
-                conn.write_message('AVG:{:.1f}:{}'.format(average, estimators))
-
-        elif message.startswith('NEW:'):
-            if self is not connections[0]: return
-
-            estimations = []
-            for conn in connections:
-                conn.write_message(message)
-                conn.write_message('AVG:{}:{}'.format(0, 0))
-
-        elif message == 'PING':
-            self.write_message('PONG');
+        Dispatcher.dispatch(self, message)
 
     def on_close(self):
-        connections.remove(self)
+        if self is not Estimationer.connections[0]:
+            Estimationer.connections[0].write_message('BYE:{}'.format(self.name))
+        Estimationer.connections.remove(self)
 
 
 def make_app():
@@ -90,4 +118,5 @@ def main():
     IOLoop.current().start()
 
 
-main()
+if __name__ == '__main__':
+    main()

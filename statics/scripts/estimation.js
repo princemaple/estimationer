@@ -17,6 +17,8 @@ function setup(name) {
 
   heartBeat(ws);
 
+  document.title += ' - ' + name;
+
   var $estimator = $('.estimator'),
       $estimation = $('#estimation'),
       $admin = $('.admin'),

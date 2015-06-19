@@ -24,7 +24,9 @@ function setup(name) {
       $admin = $('.admin'),
       $newIssue = $('#new-issue'),
       $history = $('.history'),
-      $quickEstimates = $$('.estimate');
+      $quickEstimates = $$('.estimate'),
+      $reveal = $('#reveal'),
+      $average = $('#average');
 
   $('.status').classList.remove('hide');
 
@@ -65,23 +67,35 @@ function setup(name) {
     focusElem($estimation);
   };
 
+  $reveal.onclick = function(e) {
+    e.preventDefault();
+    ws.send('AVG');
+  };
+
   function newIssue(issue) {
     $('#issue-id').textContent = issue;
     $estimator.classList.remove('hide');
 
     $history.innerHTML = '';
+    $average.innerHTML = '';
     focusElem($estimation);
   }
 
   function estimate(user, score) {
     var record = document.createElement('p');
-    record.textContent = user + ' estimated ' + score;
+
+    if (score) {
+      record.textContent = user + ' estimated ' + score;
+    } else {
+      record.textContent = user + ' submitted an estimation';
+    }
 
     $history.appendChild(record);
   }
 
   function average(averageScore, userCount) {
-    $('#average').textContent = 'Average ' + averageScore + ' by ' +  userCount + ' estimator(s)';
+    $average.textContent = 'Average ' + averageScore + ' by ' +  userCount + ' estimator(s)';
+    $history.innerHTML = '';
   }
 
   function userEnter(name) {
@@ -100,6 +114,7 @@ function setup(name) {
 
   function admin() {
     $admin.classList.remove('hide');
+    $reveal.classList.remove('hide');
     focusElem($newIssue);
   }
 

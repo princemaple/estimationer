@@ -33,7 +33,8 @@ class Dispatcher:
         'EST': 'estimate',
         'IAM': 'new_user',
         'PING': 'ping',
-        'NEW': 'new_issue'
+        'NEW': 'new_issue',
+        'AVG': 'average'
     }
 
     @classmethod
@@ -63,14 +64,28 @@ class Estimationer:
     @classmethod
     def estimate(cls, conn, score):
         estimation = int(score)
-        cls.estimations.append(estimation)
+        cls.estimations.append((conn.name, estimation))
 
-        estimators = len(cls.estimations)
-        average = sum(cls.estimations) / estimators
+        score_sum = sum(score for name, score in cls.estimations)
+        cls.score_average = score_sum / len(cls.estimations)
 
         for c in cls.connections:
-            c.write_message('EST:{}:{}'.format(conn.name, estimation))
-            c.write_message('AVG:{:.1f}:{}'.format(average, estimators))
+            c.write_message('EST:{}'.format(conn.name))
+
+        if len(cls.estimations) == len(cls.connections):
+            cls.average(None, force=True)
+
+    @classmethod
+    def average(cls, conn, force=False):
+        if not force and conn is not cls.connections[0]:
+            return
+
+        estimation_count = len(cls.estimations)
+        for c in cls.connections:
+            c.write_message('AVG:{:.1f}:{}'.format(cls.score_average, estimation_count))
+
+            for name, score in cls.estimations:
+                c.write_message('EST:{}:{}'.format(name, score))
 
     @classmethod
     def new_issue(cls, conn, issue):
@@ -79,7 +94,6 @@ class Estimationer:
         cls.estimations = []
         for c in cls.connections:
             c.write_message('NEW:{}'.format(issue))
-            c.write_message('AVG:{}:{}'.format(0, 0))
 
 
 class AppHandler(RequestHandler):
